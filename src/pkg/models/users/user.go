@@ -12,6 +12,7 @@ type User struct{
 	Lastname  string   `gorm:"column:lastname;not null;" json:"lastname" form:"lastname"`
 	// Hash for password
 	Hash      string   `gorm:"column:hash;not null;" json:"hash"`
+	APIKey	  string   `gorm:"column:apikey;not null;" json:"apikey"`
 	Movies 		[]movies.Movie
 }
 
