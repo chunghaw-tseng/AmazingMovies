@@ -9,7 +9,7 @@ import(
 
 var DB *gorm.DB
 
-func ConnectDatabase() {
+func StartDatabase() {
 	// Used Sqlite for it to be easier
 	// TODO Add Username and password 
 	database, err := gorm.Open("sqlite3", "./data/amazingMovies.db")
