@@ -44,17 +44,24 @@ func Setup() *gin.Engine {
 	// app.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 
-	// ========= Login Routes
+	// ========= Test Routes
     app.GET("/", controllers.ShowIndex)
     app.GET("/hello", controllers.TestFunction)
-    app.GET("/movies", controllers.FindMovies)
+    
+
+	// ========= Login Routes
+
 
 	// ========== User Routes
 	// TODO Get API
+	// app.GET("/favorites", controllers)
+	// app.POST("/favorits", )
 
 
 	// ========== Usage
-
+	// Search
+	app.GET("/movies", controllers.FindMovies)
+    app.GET("/movies/:id", controllers.FindMovies)
 
 	// ================== Login Routes
 	// app.POST("/api/login", controllers.Login)

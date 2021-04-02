@@ -5,9 +5,9 @@ import(
 )
 
 type Movie struct {
-	models.Model
+	models.Base
 	Title  string `gorm:"column:title;not null;" json:"title" form:"title"`
-	Cast  []Star
+	Cast  []People
 	Director string `gorm:"column:director;not null;" json:"director" form:"director"`
 	ReleaseYear int `gorm:"column:year;not null;" json:"year"`
 	Poster string `gorm:"column:poster;" json:"poster"`
@@ -15,16 +15,18 @@ type Movie struct {
 	Genres []Genre
   }
 
-type Star struct{
-	models.Model
+type People struct{
+	models.Base
 	Name   string	`gorm:"column:name;not null;" json:"name"`
-	BirthDate uint	`gorm:"column:birthdate;not null;" json:"birthdate"`
-	BirthLocation uint `gorm:"column:birthlocation;not null;" json:"birthlocation"`
+	BirthDate string	`gorm:"column:birthdate;not null;" json:"birthdate"`
+	BirthLocation string `gorm:"column:birthlocation;not null;" json:"birthlocation"`
+	DeathDate string  `gorm:"column:deathdate;not null;" json:"deathdate"`
+	Gender uint `gorm:"column:gender;not null;" json:"gender"`
 	// Maybe add the movies that starred in
 }
 
 type Genre struct{
-	models.Model
+	models.Base
 	Type   string  `gorm:"column:type;not null;" json:"type"`
 }
 
