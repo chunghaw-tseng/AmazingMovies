@@ -4,17 +4,6 @@ import(
 	"example.com/amazingmovies/src/pkg/models"
 )
 
-type Movie struct {
-	models.Base
-	Title  string `gorm:"column:title;not null;" json:"title" form:"title"`
-	Cast  []People
-	Director string `gorm:"column:director;not null;" json:"director" form:"director"`
-	ReleaseYear int `gorm:"column:year;not null;" json:"year"`
-	Poster string `gorm:"column:poster;" json:"poster"`
-	Plot string `gorm:"column:plot;not null;" json:"plot"`
-	Genres []Genre
-  }
-
 type People struct{
 	models.Base
 	Name   string	`gorm:"column:name;not null;" json:"name"`
@@ -28,4 +17,19 @@ type Genre struct{
 	models.Base
 	Type   string  `gorm:"column:type;not null;" json:"type"`
 }
+
+
+type Movie struct {
+	models.Base
+	Title  string `gorm:"column:title;not null;" json:"title" form:"title"`
+	Cast  []People `json:"cast"`
+	// Cast  string `gorm:"column:cast;not null;" json:"cast" form:"cast"`
+	Director string `gorm:"column:director;not null;" json:"director" form:"director"`
+	ReleaseYear int `gorm:"column:year;not null;" json:"year"`
+	Poster string `gorm:"column:poster;" json:"poster"`
+	Plot string `gorm:"column:plot;not null;" json:"plot"`
+	Genres []Genre `json:"genres"`
+  }
+
+
 

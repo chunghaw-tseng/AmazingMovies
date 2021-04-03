@@ -34,6 +34,7 @@ func Setup() *gin.Engine {
 	// For panics and will return 500 if there is one
 	app.Use(gin.Recovery())
 
+	// TODO Add authentication
 	// app.Use(middlewares.CORS())
 	app.NoRoute(middleware.NoRouteHandler())
 
@@ -60,9 +61,16 @@ func Setup() *gin.Engine {
 
 
 	// ========== Usage
-	// Search
-	app.GET("/movies", controllers.FindMovies)
-    app.GET("/movies/:id", controllers.FindMovies)
+	// Movies
+	app.GET("/api/movies", controllers.GetMovies)
+    app.GET("/api/movies/:id", controllers.GetMoviesById)
+	app.POST("/api/movies", controllers.CreateMovie)
+	// app.PUT("/api/movies/:id", controllers.)
+	// app.DELETE("/api/movies/:id", controllers.DeleteTask)
+
+	// Genre
+	app.GET("/api/genres", controllers.GetGenres)
+	app.POST("/api/genres", controllers.CreateGenre)
 
 	// ================== Login Routes
 	// app.POST("/api/login", controllers.Login)
