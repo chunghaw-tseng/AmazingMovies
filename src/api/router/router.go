@@ -4,6 +4,7 @@ import(
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"example.com/amazingmovies/src/api/controllers"
+	"example.com/amazingmovies/src/api/middleware"
 	"io"
 	"os"
 )
@@ -34,7 +35,7 @@ func Setup() *gin.Engine {
 	app.Use(gin.Recovery())
 
 	// app.Use(middlewares.CORS())
-	app.NoRoute(middlewares.NoRouteHandler())
+	app.NoRoute(middleware.NoRouteHandler())
 
 	// ========= Static Routes
 	app.LoadHTMLGlob("static/*")

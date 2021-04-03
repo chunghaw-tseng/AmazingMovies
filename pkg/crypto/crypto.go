@@ -1,12 +1,13 @@
 package crypto
 
-import{
+import(
 	"fmt"
+	conf "example.com/amazingmovies/src/pkg/config"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
-}
+)
 
 func GenerateHash(pwd []byte) string {
 	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
@@ -26,7 +27,7 @@ func ComparePasswords(hashedPwd string, plainPwd []byte) bool {
 }
 
 func CreateToken(username string) (string, error) {
-	config := config2.GetConfig()
+	config := conf.GetConfig()
 
 	var err error
 	//Creating Access Token
@@ -44,7 +45,7 @@ func CreateToken(username string) (string, error) {
 
 
 func ValidateToken(tokenString string) bool {
-	config := config2.GetConfig()
+	config := conf.GetConfig()
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("there was an error")

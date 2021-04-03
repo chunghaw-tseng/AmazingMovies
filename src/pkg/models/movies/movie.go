@@ -22,7 +22,6 @@ type People struct{
 	BirthLocation string `gorm:"column:birthlocation;not null;" json:"birthlocation"`
 	DeathDate string  `gorm:"column:deathdate;not null;" json:"deathdate"`
 	Gender uint `gorm:"column:gender;not null;" json:"gender"`
-	// Maybe add the movies that starred in
 }
 
 type Genre struct{
