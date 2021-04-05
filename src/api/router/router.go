@@ -52,19 +52,25 @@ func Setup() *gin.Engine {
     
 
 	// ========= Login Routes
+	// Login with token return
+	app.POST("/am_api/login", controllers.Login)
+	app.POST("/am_api/loginkey", controllers.KeyLogin)
 
 
 	// ========== User Routes
-	// TODO Get API -> Change to accounts
 	app.POST("/am_api/users", controllers.CreateUser)
-	app.DELETE("/am_api/users/:id", controllers.DeleteUser)
+	app.PUT("/am_api/users/:id", middleware.AuthRequired(),controllers.UpdateUser)
 
 
+	// TODO Get API -> Change to accounts
 	// Only Admin
-	app.GET("am_api/users", controllers.GetUsers)
+	app.DELETE("/am_api/users/:id", controllers.DeleteUser)
 	app.GET("am_api/users/id/:id", controllers.GetUserById)
-	app.GET("am_api/users/key/:api_key", controllers.GetUserByKey)
-	app.PUT("/am_api/users/:id", controllers.UpdateUser)
+	app.GET("am_api/users", controllers.GetUsers)
+
+
+
+	// app.GET("am_api/users/key/:api_key", controllers.GetUserByKey)
 
 	// ========== Usage
 	// Movies
@@ -78,19 +84,7 @@ func Setup() *gin.Engine {
 	app.GET("/am_api/genres", controllers.GetGenres)
 	app.POST("/am_api/genres", controllers.CreateGenre)
 
-	// ================== Login Routes
-	// app.POST("/api/login", controllers.Login)
-	// app.POST("/api/login/add", controllers.CreateUser)
-	// app.GET("/api/users", controllers.GetUsers)
-	// app.GET("/api/users/:id", controllers.GetUserById)
-	// app.PUT("/api/users/:id", controllers.UpdateUser)
-	// app.DELETE("/api/users/:id", controllers.DeleteUser)
-	// ================== Tasks Routes
-	// app.GET("/api/tasks/:id", controllers.GetTaskById)
-	// app.GET("/api/tasks", controllers.GetTasks)
-	// app.POST("/api/tasks", controllers.CreateTask)
-	// app.PUT("/api/tasks/:id", controllers.UpdateTask)
-	// app.DELETE("/api/tasks/:id", controllers.DeleteTask)
+	
 
 	return app
 }

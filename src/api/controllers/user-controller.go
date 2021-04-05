@@ -46,7 +46,6 @@ func GetUsers(c *gin.Context) {
 	}
 }
 
-
 func CreateUser(c *gin.Context) {
 	s := persistence.GetUserRepository()
 	r := persistence.GetRolesRepository()	
