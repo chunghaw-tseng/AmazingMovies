@@ -14,8 +14,9 @@ type User struct{
 	// Hash for password
 	Hash      string   `gorm:"column:hash;not null;" json:"hash"`
 	APIKey	  string   `gorm:"column:apikey;not null;" json:"apikey"`
-	Movies 		[]movies.Movie
-	Role      UserRole `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+ 	RoleID      uint64 
+	// Role 		UserRole `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Favorites []movies.Movie  `gorm:"many2many:user_fav_movies;"`
 }
 
 func (m *User) BeforeCreate() error {

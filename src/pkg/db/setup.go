@@ -25,6 +25,7 @@ type Database struct {
 func StartDatabase() {
 
 	var database = DB
+	var isInit bool
 
 	configuration := config.GetConfig()
 
@@ -36,13 +37,17 @@ func StartDatabase() {
 	host := configuration.Database.Host
 	port := configuration.Database.Port
 
+	// TODO Check if database exists if not create and then open
 	if driver == "mysql"{
-		createDB(username, password, host, port, dbname)
+		isInit = checkAndcreateDB(username, password, host, port, dbname)
 		dsn := username+":"+password+"@tcp("+host+":"+port+")/"+dbname+"?charset=utf8&parseTime=True&loc=Local"
+		// database, err = gorm.Open(mysql.New(mysql.Config{
+		// 	Conn: sqlDB,
+		//   }), &gorm.Config{})
 		database, err = gorm.Open("mysql", dsn)
 		if err != nil {
-			panic("Failed to connect to database!")
 			fmt.Println("db err: ", err)
+			fmt.Println("Database not exists")
 		}
 	} 
 	// else if driver == "sqlite"{
@@ -53,30 +58,40 @@ func StartDatabase() {
 	// 			fmt.Println("db err: ", err)
 	// 		}
 	// }
-
 	database.LogMode(false)
 	database.DB().SetMaxIdleConns(configuration.Database.MaxIdleConns)
 	database.DB().SetMaxOpenConns(configuration.Database.MaxOpenConns)
 	database.DB().SetConnMaxLifetime(time.Duration(configuration.Database.MaxLifetime) * time.Second)
 	DB = database
 	migration()
-
+	if isInit {
+		initRoles()
+		initGenres()
+	}
   }
 
-  func createDB(username, password, host, port, dbname string){
-		create_db, err := sql.Open("mysql", username+":"+password+"@tcp("+host+":"+port+")/")
-		if err != nil {
-			panic(err)
-		}
-		defer create_db.Close()
 
-		_,err = create_db.Exec("CREATE DATABASE IF NOT EXISTS "+dbname)
+  func checkAndcreateDB(username, password, host, port, dbname string) bool{
+	var created = false
+	create_db, err := sql.Open("mysql", username+":"+password+"@tcp("+host+":"+port+")/")
+	if err != nil {
+		panic(err)
+	}
+	defer create_db.Close()
+
+	_,err = create_db.Exec("USE "+dbname)
+	if err != nil {
+		fmt.Println("Creating database ")
+		// Create DB
+		_,err = create_db.Exec("CREATE DATABASE IF NOT EXISTS " + dbname)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println("Database exists or it was created successfully")
-		create_db.Close()
-	 
+		created = true
+	}
+	
+	create_db.Close()
+	return created
   }
 
 
@@ -84,6 +99,7 @@ func StartDatabase() {
 	DB.AutoMigrate(&movies.Movie{})
 	DB.AutoMigrate(&movies.People{})
 	DB.AutoMigrate(&movies.Genre{})
+	DB.AutoMigrate(&users.UserRole{})
 	DB.AutoMigrate(&users.User{})
   }
 

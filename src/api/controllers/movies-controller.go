@@ -11,6 +11,17 @@ import(
 
 )
 
+type MovieInput struct {
+	Title	string `json:"username" binding:"required"`
+	Cast  	string `json:"lastname"`
+	Director string `json:"firstname"`
+	ReleaseYear  string `json:"password" binding:"required"`
+	Poster      string `json:"role"`
+	Plot 	string `json:"plot"`
+	Genres 	string `json:genres`
+}
+
+
 func GetMovies(c *gin.Context) {
 	s := persistence.GetMovieRepository()
 	var q models.Movie

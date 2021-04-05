@@ -1,24 +1,7 @@
 package users
 
-
-import (
-	"time"
-	"example.com/amazingmovies/src/pkg/models"
-)
-
 type UserRole struct {
-	models.Base
-	UserID   uint64 `gorm:"column:user_id;unique_index:user_role;not null;" json:"user_id"`
+	RoleID        uint64    `gorm:"column:id;primary_key;auto_increment;" json:"id"`
 	RoleName string `gorm:"column:role_name;not null;" json:"role_name"`
-}
-
-func (m *UserRole) BeforeCreate() error {
-	m.CreatedAt = time.Now()
-	m.UpdatedAt = time.Now()
-	return nil
-}
-
-func (m *UserRole) BeforeUpdate() error {
-	m.UpdatedAt = time.Now()
-	return nil
+	Users	[]User `gorm:"ForeignKey:RoleID"`
 }
