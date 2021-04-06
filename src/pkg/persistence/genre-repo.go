@@ -2,6 +2,7 @@ package persistence
 
 import(
 	"strings"
+	"strconv"
 	"example.com/amazingmovies/src/pkg/db"
 	models "example.com/amazingmovies/src/pkg/models/movies"
 )
@@ -16,11 +17,17 @@ func GetGenreRepository() *GenreRepository {
 	return genreRepository
 }
 
-func (r *GenreRepository) All() (*[]models.Genre, error) {
-	var genre []models.Genre
-	err := Find(&models.Genre{}, &genre, []string{}, "id asc")
+func (r *GenreRepository) Get(id string) (*models.Genre, error) {
+	var genre models.Genre
+	where := models.Genre{}
+	where.ID, _ = strconv.ParseUint(id, 10, 64)
+	_, err := First(&where, &genre, []string{})
+	if err != nil {
+		return nil, err
+	}
 	return &genre, err
 }
+
 
 func (r *GenreRepository) Query(q *models.Genre) (*[]models.Genre, error) {
 	var genre []models.Genre
@@ -45,4 +52,6 @@ func (r *GenreRepository) Add(genre *models.Genre) (*models.Genre, error) {
 	return genre, err
 }
 
-func (r *GenreRepository) Delete(genre *models.Genre) error { return db.GetDB().Unscoped().Delete(&genre).Error }
+func (r *GenreRepository) Delete(genre *models.Genre) error { 
+	db.GetDB().Model(genre).Association("Movies").Clear()
+	return db.GetDB().Unscoped().Delete(&genre).Error }

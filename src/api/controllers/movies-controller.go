@@ -3,38 +3,48 @@ package controllers
 import(
 	"log"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"github.com/gin-gonic/gin"
 	models "example.com/amazingmovies/src/pkg/models/movies"
-	"example.com/amazingmovies/src/pkg/persistence"
+	persist "example.com/amazingmovies/src/pkg/persistence"
 	"example.com/amazingmovies/pkg/http_errors"
 
 )
 
 type MovieInput struct {
 	Title	string `json:"title" binding:"required"`
-	Cast  	[]string `json:"cast"`
-	Director string `json:"director"`
-	ReleaseYear  string `json:"release_year"`
-	Poster      string `json:"poster"`
-	Plot 	string `json:"plot"`
-	Genre 	[]string `json:genre`
+	Cast  	[]string `json:"cast" binding:"required"`
+	Director string `json:"director" binding:"required"`
+	ReleaseYear  string `json:"release_year" binding:"required"`
+	Plot 	string `json:"plot" binding:"required"`
+	Genre 	[]string `json:genre binding:"required"`
 }
 
-// type SearchInput struct{
-// 	Search string `json:"string" binding:"required"`
-// } 
+type MovieBasicOutput struct {
+	ID 	uint64		`json:"id"`
+	Title string	`json:"title"`
+	ReleaseYear string	`json:"release_year"`
+	Director string `json:"director"`
+}
 
+type PeopleInput struct{
+	Name   string	`json:"name" binding:"required"`
+	BirthDate string	`json:"birthdate" binding:"required"`
+	BirthLocation string `json:"birthlocation" binding:"required"`
+	Gender string `json:"gender" binding:"required"`
+}
 
 // Search
 func GetMovies(c *gin.Context) {
-	s := persistence.GetMovieRepository()
+	s := persist.GetMovieRepository()
 	var q models.Movie
 	_ = c.Bind(&q)
 	search := c.Query("search")
 	if search == ""{
-		if movie, err := s.Query(&q); err != nil {
+		fmt.Println("Search with no query")
+		if movie, err := s.SimpleQuery(&q); err != nil {
 			http_err.NewError(c, http.StatusNotFound, errors.New("movies not found"))
 			log.Println(err)
 		} else {
@@ -53,7 +63,7 @@ func GetMovies(c *gin.Context) {
 
 // Find the genre and the cast
 func CreateMovie(c *gin.Context) {
-	movie_repo := persistence.GetMovieRepository()
+	movie_repo := persist.GetMovieRepository()
 	
 	var movieInput MovieInput
 	_ = c.BindJSON(&movieInput)
@@ -64,7 +74,6 @@ func CreateMovie(c *gin.Context) {
 		Cast : getAndCreatePeople(movieInput.Cast),
 		Director : movieInput.Director,
 		ReleaseYear : movieInput.ReleaseYear,
-		Poster	: movieInput.Poster,
 		Plot : movieInput.Plot,
 		Genres: getAndCreateGenres(movieInput.Genre),
 	}
@@ -77,9 +86,63 @@ func CreateMovie(c *gin.Context) {
 }
 
 
+func GetMoviesById(c *gin.Context) { 
+	s := persist.GetMovieRepository()
+	id := c.Param("id")
+	if movie, err := s.Get(id); err != nil {
+		http_err.NewError(c, http.StatusNotFound, errors.New("movie not found"))
+		log.Println(err)
+	} else {
+		c.JSON(http.StatusOK, movie)
+	}
+
+  }
+
+  func UpdateMovie(c *gin.Context){
+	s := persist.GetMovieRepository()
+	id := c.Param("id")
+	var movieInput MovieInput
+	_ = c.BindJSON(&movieInput)
+	if movie, err := s.Get(id); err != nil {
+		http_err.NewError(c, http.StatusNotFound, errors.New("No Movie found"))
+		log.Println(err)
+	} else {
+		movie.Title = movieInput.Title
+		movie.Director = movieInput.Director
+		movie.ReleaseYear = movieInput.ReleaseYear
+		movie.Plot = movieInput.Plot
+		movie.Cast = getAndCreatePeople(movieInput.Cast)
+		movie.Genres = getAndCreateGenres(movieInput.Genre)
+		if err := s.Update(movie); err != nil {
+			http_err.NewError(c, http.StatusBadRequest, err)
+			log.Println(err)
+		} else {
+			c.JSON(http.StatusCreated, movie)
+			}
+	}
+}
+
+
+func DeleteMovie(c *gin.Context){
+	s := persist.GetMovieRepository()
+	id := c.Param("id")
+	if movie, err := s.Get(id); err != nil {
+		http_err.NewError(c, http.StatusNotFound, errors.New("movie not found"))
+		log.Println(err)
+	} else {
+		if err := s.Delete(movie); err != nil {
+			http_err.NewError(c, http.StatusNotFound, err)
+			log.Println(err)
+		} else {
+			c.JSON(http.StatusNoContent, "")
+		}
+	}
+}
+
+
 func getAndCreatePeople(cast []string) ([]*models.People){
 	var movie_cast []*models.People
-	ppl_repo := persistence.GetPeopleRepository()
+	ppl_repo := persist.GetPeopleRepository()
 
 	for _, v := range cast {
 		// Find the cast and the genre
@@ -102,7 +165,7 @@ func getAndCreatePeople(cast []string) ([]*models.People){
 
 func getAndCreateGenres(genres []string) ([]*models.Genre){
 	var movie_genres []*models.Genre
-	genre_repo := persistence.GetGenreRepository()
+	genre_repo := persist.GetGenreRepository()
 
 	for _, v := range genres {
 		// Find the cast and the genre
@@ -122,25 +185,63 @@ func getAndCreateGenres(genres []string) ([]*models.Genre){
 }
 
 
-
-func GetMoviesById(c *gin.Context) {  // Get model if exist
-	s := persistence.GetMovieRepository()
-	id := c.Param("id")
-	if movie, err := s.Get(id); err != nil {
-		http_err.NewError(c, http.StatusNotFound, errors.New("movie not found"))
+func GetPeople(c *gin.Context) {
+	s := persist.GetPeopleRepository()
+	var q models.People
+	_ = c.Bind(&q)
+	if people, err := s.Query(&q); err != nil {
+		http_err.NewError(c, http.StatusNotFound, errors.New("No People found"))
 		log.Println(err)
 	} else {
-		c.JSON(http.StatusOK, movie)
+		c.JSON(http.StatusOK, people)
+	}
+}
+
+
+func DeletePeople(c *gin.Context){
+	s := persist.GetPeopleRepository()
+	id := c.Param("id")
+	if ppl, err := s.Get(id); err != nil {
+		http_err.NewError(c, http.StatusNotFound, errors.New("Person not found"))
+		log.Println(err)
+	} else {
+		if err := s.Delete(ppl); err != nil {
+			http_err.NewError(c, http.StatusNotFound, err)
+			log.Println(err)
+		} else {
+			c.JSON(http.StatusNoContent, "")
+		}
 	}
 
-  }
+}
+
+func UpdatePeople(c *gin.Context) {
+	s := persist.GetPeopleRepository()
+	id := c.Param("id")
+	var peopleInput PeopleInput
+	_ = c.BindJSON(&peopleInput)
+	if ppl, err := s.Get(id); err != nil {
+		http_err.NewError(c, http.StatusNotFound, errors.New("No People found"))
+		log.Println(err)
+	} else {
+		ppl.Name = peopleInput.Name
+		ppl.BirthDate = peopleInput.BirthDate
+		ppl.BirthLocation = peopleInput.BirthLocation
+		ppl.Gender = peopleInput.Gender
+		if err := s.Update(ppl); err != nil {
+			http_err.NewError(c, http.StatusNotFound, err)
+			log.Println(err)
+		} else {
+			c.JSON(http.StatusOK, ppl)
+		}
+	}
+}
 
 
 func GetGenres(c *gin.Context) {
-	s := persistence.GetGenreRepository()
+	s := persist.GetGenreRepository()
 	var q models.Genre
 	_ = c.Bind(&q)
-
 	if genre, err := s.Query(&q); err != nil {
 		http_err.NewError(c, http.StatusNotFound, errors.New("Genres not found"))
 		log.Println(err)
@@ -149,22 +250,19 @@ func GetGenres(c *gin.Context) {
 	}
   }
 
+  func DeleteGenre(c *gin.Context){
+	s := persist.GetGenreRepository()
+	id := c.Param("id")
+	if ppl, err := s.Get(id); err != nil {
+		http_err.NewError(c, http.StatusNotFound, errors.New("Genre not found"))
+		log.Println(err)
+	} else {
+		if err := s.Delete(ppl); err != nil {
+			http_err.NewError(c, http.StatusNotFound, err)
+			log.Println(err)
+		} else {
+			c.JSON(http.StatusNoContent, "")
+		}
+	}
 
-// TODO Delete genre by id
-// func DeleteGenre(c *gin.Context) {
-// 	s := persistence.GetGenreRepository()
-// 	id := c.Params.ByName("id")
-// 	var genreInput models.Genre
-// 	_ = c.BindJSON(&genreInput)
-// 	if genre, err := s.Get(id); err != nil {
-// 		http_err.NewError(c, http.StatusNotFound, errors.New("Genre not found"))
-// 		log.Println(err)
-// 	} else {
-// 		if err := s.Delete(genre); err != nil {
-// 			http_err.NewError(c, http.StatusNotFound, err)
-// 			log.Println(err)
-// 		} else {
-// 			c.JSON(http.StatusNoContent, "")
-// 		}
-// 	}
-// }
+}

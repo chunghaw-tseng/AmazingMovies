@@ -3,6 +3,7 @@ package persistence
 import(
 	"example.com/amazingmovies/src/pkg/db"
 	models "example.com/amazingmovies/src/pkg/models/users"
+	"example.com/amazingmovies/src/pkg/models/movies"
 	"strconv"
 )
 
@@ -52,12 +53,6 @@ func (r *UserRepository) GetByUsername(username string) (*models.User, error) {
 	return &user, err
 }
 
-func (r *UserRepository) All() (*[]models.User, error) {
-	var users []models.User
-	err := Find(&models.User{}, &users, []string{"Favorites"}, "id asc")
-	return &users, err
-}
-
 func (r *UserRepository) Query(q *models.User) (*[]models.User, error) {
 	var users []models.User
 	err := Find(&q, &users, []string{"Favorites"}, "id asc")
@@ -70,23 +65,15 @@ func (r *UserRepository) Add(user *models.User) error {
 	return err
 }
 
-
-
-// TODO
 func (r *UserRepository) Update(user *models.User) error {
-	// var userRole models.UserRole
-	// _, err := First(models.UserRole{UserID: user.ID}, &userRole, []string{})
-	// userRole.RoleName = user.Role.RoleName
-	// err = Save(&userRole)
-	// err = db.GetDB().Omit("RoleID").Save(&user).Error
-	// user.Role = userRole
 	return db.GetDB().Omit("RoleID").Save(&user).Error
 }
 
-// TODO Delete all the relations
 func (r *UserRepository) Delete(user *models.User) error {
-	// err := db.GetDB().Unscoped().Delete(models.UserRole{UserID: user.ID}).Error
-	// err = db.GetDB().Unscoped().Delete(&user).Error
+	db.GetDB().Model(user).Association("Favorites").Clear()
 	return db.GetDB().Unscoped().Delete(&user).Error
 }
 
+func (r *UserRepository) DeleteAssociation(user *models.User ,association string, movie *movies.Movie) error {
+	return db.GetDB().Model(user).Association(association).Delete(movie).Error
+}

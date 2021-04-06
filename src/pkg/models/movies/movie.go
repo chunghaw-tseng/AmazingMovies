@@ -20,16 +20,12 @@ type Genre struct{
 
 
 type Movie struct {
-	models.Base
+	models.BaseID
 	Title  string `gorm:"column:title;not null;" json:"title" form:"title"`
 	Cast  []*People `gorm:"many2many:movie_cast;"`
 	Director string `gorm:"column:director;not null;" json:"director" form:"director"`
-	ReleaseYear string `gorm:"column:year;not null;" json:"year"`
-	Poster string `gorm:"column:poster;" json:"poster"`
+	ReleaseYear string `gorm:"column:release_year;not null;" json:"release_year"`
+	// Poster string `gorm:"column:poster;" json:"poster"`
 	Plot string `gorm:"column:plot;not null;" json:"plot"`
 	Genres []*Genre   `gorm:"many2many:movie_genres;"`
-	// UserFav []User `gorm:"many2many:userfav_movies;"`
-  }
-
-
-
+}

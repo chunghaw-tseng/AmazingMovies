@@ -1,7 +1,6 @@
 package persistence
 
 import(
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"example.com/amazingmovies/src/pkg/db"
 )
@@ -59,13 +58,15 @@ func Find(where interface{}, out interface{}, associations []string, orders ...s
 	return db.Find(out).Error
 }
 
+
+
+
 // Find similar to 
 func FindLike(where string, query string, out interface{}, associations []string, orders ...string) error {
 	db := db.GetDB()
 	for _, a := range associations {
 		db = db.Preload(a)
 	}
-	fmt.Println(where)
 	db = db.Where(where , query)
 	if len(orders) > 0 {
 		for _, order := range orders {
@@ -74,7 +75,6 @@ func FindLike(where string, query string, out interface{}, associations []string
 	}
 	return db.Find(out).Error
 }
-
 
 // Delete Model
 func DeleteByModel(model interface{}) (count int64, err error) {
@@ -101,17 +101,6 @@ func DeleteByWhere(model, where interface{}) (count int64, err error) {
 // Delete by ID
 func DeleteByID(model interface{}, id uint64) (count int64, err error) {
 	db := db.GetDB().Where("id=?", id).Delete(model)
-	err = db.Error
-	if err != nil {
-		return
-	}
-	count = db.RowsAffected
-	return
-}
-
-// Delete multiple IDs
-func DeleteByIDS(model interface{}, ids []uint64) (count int64, err error) {
-	db := db.GetDB().Where("id in (?)", ids).Delete(model)
 	err = db.Error
 	if err != nil {
 		return

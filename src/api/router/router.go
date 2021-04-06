@@ -49,46 +49,46 @@ func Setup() *gin.Engine {
 	// ========= Test Routes
     app.GET("/", controllers.ShowIndex)
     app.GET("/hello", controllers.TestFunction)
-    
-
 	// ========= Login Routes
-	// Login with token return
-	app.POST("/am_api/login", controllers.Login)
-	app.POST("/am_api/loginkey", controllers.KeyLogin)
+	app.POST("/login", controllers.Login)
+	app.POST("/loginkey", controllers.KeyLogin)
+
+	am_api := app.Group("/am_api")
+	{	
+	
+		// ========== User Routes
+		am_api.POST("/users", controllers.CreateUser)
+		am_api.PUT("/users", middleware.AuthRequired(),controllers.UpdateUser)
+		// Favorites
+		am_api.POST("/favorite/:id", middleware.AuthRequired() ,controllers.FavMovie)
+		am_api.GET("/favorite", middleware.AuthRequired() ,controllers.ShowFavMovies)
+		am_api.DELETE("/favorite/:id", middleware.AuthRequired() ,controllers.DeleteFavMovie)
+
+		// Only Admin
+		am_api.DELETE("/users/:id", middleware.AdminRequired(), controllers.DeleteUser)
+		am_api.GET("/users", middleware.AdminRequired(), controllers.GetUsers)
+
+		// ========== Movies Usage
+		am_api.GET("/movies", controllers.GetMovies)
+		am_api.GET("/movies/:id", controllers.GetMoviesById)
 
 
-	// ========== User Routes
-	app.POST("/am_api/users", controllers.CreateUser)
-	app.PUT("/am_api/users/:id", middleware.AuthRequired(),controllers.UpdateUser)
+		// =========== Adding Data
+		am_api.POST("/movies", controllers.CreateMovie)
+		am_api.POST("/movies/:id", controllers.UpdateMovie)
+		am_api.DELETE("/movies/:id", middleware.AdminRequired(), controllers.DeleteMovie)
+
+		// Genre
+		am_api.GET("/genres", controllers.GetGenres)
+		am_api.DELETE("/genres/:id", middleware.AdminRequired(),controllers.DeleteGenre)
+
+		// People
+		am_api.GET("/people", controllers.GetPeople)
+		am_api.POST("/people/:id", controllers.UpdatePeople)
+		am_api.DELETE("/people/:id", middleware.AdminRequired(), controllers.DeletePeople)
 
 
-	// TODO Get API -> Change to accounts
-	// Only Admin
-	app.DELETE("/am_api/users/:id", controllers.DeleteUser)
-	app.GET("am_api/users/id/:id", controllers.GetUserById)
-	app.GET("am_api/users", controllers.GetUsers)
-
-	// app.GET("am_api/users/key/:api_key", controllers.GetUserByKey)
-
-	// ========== Usage
-	// Movies
-	app.GET("/am_api/movies", controllers.GetMovies)
-    app.GET("/am_api/movies/:id", controllers.GetMoviesById)
-	app.POST("/am_api/movies", controllers.CreateMovie)
-
-	// Favourites
-	app.POST("/am_api/favorite/:id", middleware.AuthRequired() ,controllers.FavMovie)
-	app.GET("/am_api/favorite", middleware.AuthRequired() ,controllers.ShowFavMovies)
-	app.DELETE("/am_api/favorite/:id", middleware.AuthRequired() ,controllers.DeleteUser)
-
-
-	// app.PUT("/api/movies/:id", controllers.)
-	// app.DELETE("/api/movies/:id", controllers.DeleteTask)
-
-	// Genre
-	app.GET("/am_api/genres", controllers.GetGenres)
-	// app.POST("/am_api/genres", controllers.CreateGenre)
-
+	}
 	
 
 	return app

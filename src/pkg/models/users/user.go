@@ -15,7 +15,6 @@ type User struct{
 	Hash      string   `gorm:"column:hash;not null;" json:"hash"`
 	APIKey	  string   `gorm:"column:apikey;not null;" json:"apikey"`
  	RoleID      uint64 
-	// Role 		UserRole `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Favorites []*movies.Movie  `gorm:"many2many:userfav_movies;"`
 }
 

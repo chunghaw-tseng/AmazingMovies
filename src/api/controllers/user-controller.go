@@ -19,7 +19,6 @@ type UserInput struct {
 	Lastname  string `json:"lastname"`
 	Firstname string `json:"firstname"`
 	Password  string `json:"password" binding:"required"`
-	Role      string `json:"role"`
 }
 
 
@@ -52,10 +51,7 @@ func CreateUser(c *gin.Context) {
 	var userInput UserInput
 	_ = c.BindJSON(&userInput)
 	apikey := uuid.New().String()
-	if userInput.Role == ""{
-		userInput.Role = "user"
-	}
-	role, _ := r.Get(userInput.Role)
+	role, _ := r.Get("user")
 
 	user := models.User{
 		Username:  userInput.Username,
@@ -162,7 +158,6 @@ func DeleteUser(c *gin.Context) {
 			http_err.NewError(c, http.StatusNotFound, err)
 			log.Println(err)
 		} else {
-			// TODO Succeed Message 
 			c.JSON(http.StatusNoContent, "")
 		}
 	}
