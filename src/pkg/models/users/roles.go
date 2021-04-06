@@ -1,7 +1,10 @@
 package users
+import(
+	"example.com/amazingmovies/src/pkg/models"
+)
 
 type UserRole struct {
-	RoleID        uint64    `gorm:"column:id;primary_key;auto_increment;" json:"id"`
+	models.BaseID
 	RoleName string `gorm:"column:role_name;not null;" json:"role_name"`
 	Users	[]User `gorm:"ForeignKey:RoleID"`
 }

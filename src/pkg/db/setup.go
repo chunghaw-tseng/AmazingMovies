@@ -64,9 +64,11 @@ func StartDatabase() {
 	database.DB().SetConnMaxLifetime(time.Duration(configuration.Database.MaxLifetime) * time.Second)
 	DB = database
 	migration()
+	// Init data for testing purposes
 	if isInit {
 		initRoles()
 		initGenres()
+		initPeople()
 	}
   }
 
