@@ -41,9 +41,6 @@ func StartDatabase() {
 	if driver == "mysql"{
 		isInit = checkAndcreateDB(username, password, host, port, dbname)
 		dsn := username+":"+password+"@tcp("+host+":"+port+")/"+dbname+"?charset=utf8&parseTime=True&loc=Local"
-		// database, err = gorm.Open(mysql.New(mysql.Config{
-		// 	Conn: sqlDB,
-		//   }), &gorm.Config{})
 		database, err = gorm.Open("mysql", dsn)
 		if err != nil {
 			fmt.Println("db err: ", err)
@@ -61,7 +58,7 @@ func StartDatabase() {
 	database.LogMode(false)
 	database.DB().SetMaxIdleConns(configuration.Database.MaxIdleConns)
 	database.DB().SetMaxOpenConns(configuration.Database.MaxOpenConns)
-	database.DB().SetConnMaxLifetime(time.Duration(configuration.Database.MaxLifetime) * time.Second)
+	database.DB().SetConnMaxLifetime(time.Duration(configuration.Database.MaxLifetime) * time.Second)	
 	DB = database
 	migration()
 	// Init data for testing purposes
@@ -69,6 +66,7 @@ func StartDatabase() {
 		initRoles()
 		initGenres()
 		initPeople()
+		initMovies()
 	}
   }
 
