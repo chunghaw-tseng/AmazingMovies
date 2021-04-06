@@ -3,7 +3,6 @@ package http_err
 import "github.com/gin-gonic/gin"
 
 // NewError example
-// TODO Errors
 func NewError(c *gin.Context, status int, err error) {
 	er := HTTPError{
 		Code:    status,

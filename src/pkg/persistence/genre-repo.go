@@ -51,7 +51,3 @@ func (r *GenreRepository) Add(genre *models.Genre) (*models.Genre, error) {
 	err = Save(&genre)
 	return genre, err
 }
-
-func (r *GenreRepository) Delete(genre *models.Genre) error { 
-	db.GetDB().Model(genre).Association("Movies").Clear()
-	return db.GetDB().Unscoped().Delete(&genre).Error }

@@ -53,7 +53,3 @@ func (r *PeopleRepository) GetFromName(name string) (*models.People, error){
 }
 
 func (r *PeopleRepository) Update(people *models.People) error { return db.GetDB().Save(&people).Error}
-
-func (r *PeopleRepository) Delete(people *models.People) error { 
-	db.GetDB().Model(people).Association("Movies").Clear()
-	return db.GetDB().Unscoped().Delete(&people).Error }

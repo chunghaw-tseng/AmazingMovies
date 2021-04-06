@@ -197,24 +197,6 @@ func GetPeople(c *gin.Context) {
 	}
 }
 
-
-func DeletePeople(c *gin.Context){
-	s := persist.GetPeopleRepository()
-	id := c.Param("id")
-	if ppl, err := s.Get(id); err != nil {
-		http_err.NewError(c, http.StatusNotFound, errors.New("Person not found"))
-		log.Println(err)
-	} else {
-		if err := s.Delete(ppl); err != nil {
-			http_err.NewError(c, http.StatusNotFound, err)
-			log.Println(err)
-		} else {
-			c.JSON(http.StatusNoContent, "")
-		}
-	}
-
-}
-
 func UpdatePeople(c *gin.Context) {
 	s := persist.GetPeopleRepository()
 	id := c.Param("id")
@@ -249,20 +231,3 @@ func GetGenres(c *gin.Context) {
 		c.JSON(http.StatusOK, genre)
 	}
   }
-
-  func DeleteGenre(c *gin.Context){
-	s := persist.GetGenreRepository()
-	id := c.Param("id")
-	if ppl, err := s.Get(id); err != nil {
-		http_err.NewError(c, http.StatusNotFound, errors.New("Genre not found"))
-		log.Println(err)
-	} else {
-		if err := s.Delete(ppl); err != nil {
-			http_err.NewError(c, http.StatusNotFound, err)
-			log.Println(err)
-		} else {
-			c.JSON(http.StatusNoContent, "")
-		}
-	}
-
-}

@@ -5,7 +5,6 @@ import(
 	"time"
 	"github.com/jinzhu/gorm"
   		_ "github.com/jinzhu/gorm/dialects/sqlite"
-		_ "github.com/jinzhu/gorm/dialects/mysql"
 	"example.com/amazingmovies/src/pkg/models/movies"
 	"example.com/amazingmovies/src/pkg/models/users"
 	"example.com/amazingmovies/src/pkg/config"
@@ -37,7 +36,6 @@ func StartDatabase() {
 	host := configuration.Database.Host
 	port := configuration.Database.Port
 
-	// TODO Check if database exists if not create and then open
 	if driver == "mysql"{
 		isInit = checkAndcreateDB(username, password, host, port, dbname)
 		dsn := username+":"+password+"@tcp("+host+":"+port+")/"+dbname+"?charset=utf8&parseTime=True&loc=Local"
@@ -47,14 +45,7 @@ func StartDatabase() {
 			fmt.Println("Database not exists")
 		}
 	} 
-	// else if driver == "sqlite"{
-	// 		dsn := "./data/"+dbname+".db"
-	// 		database, err := gorm.Open("sqlite3", dsn)
-	// 		if err != nil {
-	// 			panic("Failed to connect to database!")
-	// 			fmt.Println("db err: ", err)
-	// 		}
-	// }
+
 	database.LogMode(false)
 	database.DB().SetMaxIdleConns(configuration.Database.MaxIdleConns)
 	database.DB().SetMaxOpenConns(configuration.Database.MaxOpenConns)

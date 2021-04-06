@@ -34,14 +34,11 @@ func Setup() *gin.Engine {
 	// For panics and will return 500 if there is one
 	app.Use(gin.Recovery())
 
-	// TODO Add authentication
-	// app.Use(middlewares.CORS())
 	app.NoRoute(middleware.NoRouteHandler())
 
 	// ========= Static Routes
 	app.LoadHTMLGlob("static/*")
 
-	// TODO
 	// ========== Docs Routes
 	// app.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -80,13 +77,10 @@ func Setup() *gin.Engine {
 
 		// Genre
 		am_api.GET("/genres", controllers.GetGenres)
-		am_api.DELETE("/genres/:id", middleware.AdminRequired(),controllers.DeleteGenre)
 
 		// People
 		am_api.GET("/people", controllers.GetPeople)
 		am_api.POST("/people/:id", controllers.UpdatePeople)
-		am_api.DELETE("/people/:id", middleware.AdminRequired(), controllers.DeletePeople)
-
 
 	}
 	
