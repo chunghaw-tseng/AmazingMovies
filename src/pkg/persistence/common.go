@@ -1,6 +1,7 @@
 package persistence
 
 import(
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"example.com/amazingmovies/src/pkg/db"
 )
@@ -58,24 +59,20 @@ func Find(where interface{}, out interface{}, associations []string, orders ...s
 	return db.Find(out).Error
 }
 
-// Scan
-func Scan(model, where interface{}, out interface{}) (notFound bool, err error) {
-	err = db.GetDB().Model(model).Where(where).Scan(out).Error
-	if err != nil {
-		notFound = gorm.IsRecordNotFoundError(err)
+// Find similar to 
+func FindLike(where string, query string, out interface{}, associations []string, orders ...string) error {
+	db := db.GetDB()
+	for _, a := range associations {
+		db = db.Preload(a)
 	}
-	return
-}
-
-// ScanList
-func ScanList(model, where interface{}, out interface{}, orders ...string) error {
-	db := db.GetDB().Model(model).Where(where)
+	fmt.Println(where)
+	db = db.Where(where , query)
 	if len(orders) > 0 {
 		for _, order := range orders {
 			db = db.Order(order)
 		}
 	}
-	return db.Scan(out).Error
+	return db.Find(out).Error
 }
 
 

@@ -2,7 +2,7 @@ package controllers
 
 import(
 	"log"
-	// "fmt"
+	"fmt"
 	"net/http"
 	"errors"
 	models "example.com/amazingmovies/src/pkg/models/users"
@@ -63,7 +63,7 @@ func CreateUser(c *gin.Context) {
 		Lastname:  userInput.Lastname,
 		Hash:      crypto.GenerateHash([]byte(userInput.Password)),
 		APIKey:	   apikey,
-		RoleID:    role.RoleID,
+		RoleID:    role.ID,
 	}
 	if err := s.Add(&user); err != nil {
 		http_err.NewError(c, http.StatusBadRequest, err)
@@ -84,6 +84,46 @@ func GetUserByKey(c *gin.Context){
 	} else {
 		c.JSON(http.StatusOK, user)
 	}
+}
+
+func FavMovie(c *gin.Context){
+	user_repo := persistence.GetUserRepository()
+	m_repo := persistence.GetMovieRepository()
+	id := c.Params.ByName("id")
+	user := c.MustGet("user").(*models.User)
+	if movie, err := m_repo.Get(id); err != nil{
+		http_err.NewError(c, http.StatusNotFound, errors.New("movie not found"))
+		log.Println(err)
+	}else{
+			// Add movie to fav if user exists
+			for _, item := range user.Favorites {
+				if item.ID == movie.ID {
+					fmt.Println("Movie already fav")
+					http_err.NewError(c, http.StatusNotAcceptable, errors.New("Movie already favorited"))
+					return
+				}
+			}
+			user.Favorites = append(user.Favorites, movie)
+			if err := user_repo.Update(user); err != nil {
+				http_err.NewError(c, http.StatusNotFound, err)
+				log.Println(err)
+			} else {
+				c.JSON(http.StatusOK, "User was upadated")
+			}
+	}
+}
+
+func ShowFavMovies(c *gin.Context){
+	user := c.MustGet("user").(*models.User)
+	c.JSON(http.StatusOK, user.Favorites)
+}
+
+
+func DeleteFavMovie(c *gin.Context){
+	s := persistence.GetUserRepository()
+	user := c.MustGet("user").(*models.User)
+	id := c.Params.ByName("id")
+	
 }
 
 func UpdateUser(c *gin.Context) {

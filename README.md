@@ -32,4 +32,8 @@ The rest is handled locally by your API.
 - DB with some movies and data about 10 hard coded stuff
 - Accept API Key with Authentication header
 - Add authentication middleware and use a bearer token every time to authenticate this
--
+- Cannot create same username
+
+## Done
+
+- Started a very easy implementation of the JWTs to see and learn how Golang achieves this. This method is still not complete and it needs more security but due to time restrictions, I will not go very deep into this area for now.

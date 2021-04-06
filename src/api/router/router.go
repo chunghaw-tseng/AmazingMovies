@@ -68,8 +68,6 @@ func Setup() *gin.Engine {
 	app.GET("am_api/users/id/:id", controllers.GetUserById)
 	app.GET("am_api/users", controllers.GetUsers)
 
-
-
 	// app.GET("am_api/users/key/:api_key", controllers.GetUserByKey)
 
 	// ========== Usage
@@ -77,12 +75,19 @@ func Setup() *gin.Engine {
 	app.GET("/am_api/movies", controllers.GetMovies)
     app.GET("/am_api/movies/:id", controllers.GetMoviesById)
 	app.POST("/am_api/movies", controllers.CreateMovie)
+
+	// Favourites
+	app.POST("/am_api/favorite/:id", middleware.AuthRequired() ,controllers.FavMovie)
+	app.GET("/am_api/favorite", middleware.AuthRequired() ,controllers.ShowFavMovies)
+	app.DELETE("/am_api/favorite/:id", middleware.AuthRequired() ,controllers.DeleteUser)
+
+
 	// app.PUT("/api/movies/:id", controllers.)
 	// app.DELETE("/api/movies/:id", controllers.DeleteTask)
 
 	// Genre
 	app.GET("/am_api/genres", controllers.GetGenres)
-	app.POST("/am_api/genres", controllers.CreateGenre)
+	// app.POST("/am_api/genres", controllers.CreateGenre)
 
 	
 

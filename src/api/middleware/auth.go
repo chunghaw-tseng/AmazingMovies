@@ -15,31 +15,35 @@ func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Check if the token is a Bearer token
 		authorizationHeader := strings.TrimSpace(c.GetHeader("authorization"))
-		
-		
+		s := persistence.GetUserRepository()
 		if authorizationHeader != "" {
 			// Token need to return user info
 			if strings.Contains(authorizationHeader, "Bearer"){
 				auth_slice := strings.Fields(authorizationHeader)
-				if !crypto.ValidateToken(auth_slice[1]) {
+				if valid, username := crypto.ValidateToken(auth_slice[1]); !valid{
 					c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized : token not accepted"})
 					return
 				} else {
-					c.Next()
+					if user , err := s.GetByUsername(username); err != nil {
+						c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized : token not accepted"})
+					} else {
+						fmt.Println("User obtained ", user)
+						c.Set("user", user)
+						c.Next()
+					}
 				}
 			}else{
 					// API Key
 					fmt.Println("API Key ", authorizationHeader)
-					s := persistence.GetUserRepository()
 					if user, err := s.GetbyKey(authorizationHeader); err != nil {
 						c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized : api_key not valid"})
 					} else {
-						c.Set("UserID", user.ID)
+						c.Set("user", user)
 						c.Next()
 					}
 				}
 		}else{
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "need authorization header"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "No authorization header found"})
 		}
 	}
 }

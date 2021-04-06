@@ -28,12 +28,12 @@ func ComparePasswords(hashedPwd string, plainPwd []byte) bool {
 
 func CreateToken(username string) (string, error) {
 	config := conf.GetConfig()
-
 	var err error
 	//Creating Access Token
 	atClaims := jwt.MapClaims{}
 	atClaims["authorized"] = true
 	atClaims["username"] = username
+	// Super long expiry date
 	atClaims["exp"] = time.Now().Add(time.Hour * 24 * 365).Unix()
 	at := jwt.NewWithClaims(jwt.SigningMethodHS512, atClaims)
 	token, err := at.SignedString([]byte(config.Server.Secret)) // SECRET
@@ -44,16 +44,18 @@ func CreateToken(username string) (string, error) {
 }
 
 
-func ValidateToken(tokenString string) bool {
+// Validates token and get the username for logged in user
+func ValidateToken(tokenString string) (bool, string){
 	config := conf.GetConfig()
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	claims := jwt.MapClaims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("there was an error")
 		}
 		return []byte(config.Server.Secret), nil
 	})
 	if err != nil {
-		return false
+		return false , ""
 	}
-	return token.Valid
+	return token.Valid , fmt.Sprint(claims["username"])
 }
