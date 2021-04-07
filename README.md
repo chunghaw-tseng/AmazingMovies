@@ -1,6 +1,36 @@
 # AmazingMovies
 
 API Server written in GoLang for amazing movies
+There are some data that will be initialized for easier testing.
+Admin user is created by default {username:admin, passsword:admin}
+
+Decided to create this backend to learn more and expand my knowledge on golang.
+I don't have much experience with this language yet.
+
+### Usage
+
+- To start run after initializing all the go modules
+
+```
+    go run main.go
+```
+
+- You can access the API Key or the JWT Token with the login and loginkey apis
+- To use JWT please add Bearer in front in the Authentication Header
+- Some documentation is written for some APIs
+- There are 3 kinds of APIs
+
+1. Need User Bearer Token/API Key
+
+- Update User, Add Favorite, Delete Favorite and See Favorites
+
+2. Need Bearer Token from an Admin Role user
+
+- Get Users, Delete Users, Delete Movies
+
+3. Open to anyone (No need for API Key/ Bearer Token or Admin Role)
+
+- The rest
 
 ## Libraries used
 
@@ -28,12 +58,5 @@ The rest is handled locally by your API.
 
 ### TODO
 
-- Login to app to save favourite
-- DB with some movies and data about 10 hard coded stuff
-- Accept API Key with Authentication header
-- Add authentication middleware and use a bearer token every time to authenticate this
-- Cannot create same username
-
-## Done
-
-- Started a very easy implementation of the JWTs to see and learn how Golang achieves this. This method is still not complete and it needs more security but due to time restrictions, I will not go very deep into this area for now.
+- Deletion of some data such as genre and people
+- Use ginswagger for Documentation

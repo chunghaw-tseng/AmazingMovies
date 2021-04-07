@@ -10,7 +10,6 @@ type APIMovie struct {
 	ID   uint64  		`json:"id"`
 	Title string	`json:"title"`
 	ReleaseYear string	`json:"release_year"`
-	Poster	string		`json:"poster"`
   }
 
 
@@ -83,4 +82,10 @@ func (r *MoviesRepository) Delete(movies *models.Movie) error {
 	db.GetDB().Model(movies).Association("Cast").Clear()
 	db.GetDB().Model(movies).Association("Genres").Clear()
 	return db.GetDB().Unscoped().Delete(&movies).Error 
+}
+
+func (r *MoviesRepository) DeleteAssociations(movies *models.Movie, associations[]string) { 
+	for _ , val := range associations{
+		db.GetDB().Model(movies).Association(val).Clear()
+	}
 }

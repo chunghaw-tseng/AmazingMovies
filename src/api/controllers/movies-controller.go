@@ -36,7 +36,14 @@ type PeopleInput struct{
 	Gender string `json:"gender" binding:"required"`
 }
 
-// Search
+
+// GetMovies godoc
+// @Summary Get all the movies or the ones specified by query
+// @Description Get movies in BD
+// @Produce json
+// @Param query search string
+// @Success 200 {object} []model.Movies
+// @Router /am_api/movies [get]
 func GetMovies(c *gin.Context) {
 	s := persist.GetMovieRepository()
 	var q models.Movie
@@ -61,7 +68,19 @@ func GetMovies(c *gin.Context) {
   }
 
 
-// Find the genre and the cast
+// CreateMovie godoc
+// @Summary Creates a new entry for Movie
+// @Description Adds a new movie entry in DB
+// @Accept json
+// @Param  title string
+// @Param cast []string
+// @Param director string
+// @Param release_year string
+// @Param plot string
+// @Param genre []string
+// @Produce json
+// @Success 200 {object} []model.Movies
+// @Router /am_api/movies [post]
 func CreateMovie(c *gin.Context) {
 	movie_repo := persist.GetMovieRepository()
 	
@@ -85,7 +104,13 @@ func CreateMovie(c *gin.Context) {
 		}
 }
 
-
+// GetMoviesByID godoc
+// @Summary Show Movie Details
+// @Description Get movie details by ID
+// @Param id integer "Movie.ID"
+// @Produce json
+// @Success 200 {object} model.Movie
+// @Router /am_api/movies/{id} [get]
 func GetMoviesById(c *gin.Context) { 
 	s := persist.GetMovieRepository()
 	id := c.Param("id")
@@ -98,6 +123,21 @@ func GetMoviesById(c *gin.Context) {
 
   }
 
+
+// UpdateMovie godoc
+// @Summary Update Movie Info
+// @Description Update Movie from ID
+// @Param  id integer "Movie.ID"
+// @Accept json
+// @Param  title string
+// @Param cast []string
+// @Param director string
+// @Param release_year string
+// @Param plot string
+// @Param genre []string
+// @Produce json
+// @Success 200 {object} model.Movie
+// @Router /am_api/movies/{id} [put]
   func UpdateMovie(c *gin.Context){
 	s := persist.GetMovieRepository()
 	id := c.Param("id")
@@ -107,6 +147,7 @@ func GetMoviesById(c *gin.Context) {
 		http_err.NewError(c, http.StatusNotFound, errors.New("No Movie found"))
 		log.Println(err)
 	} else {
+		s.DeleteAssociations(movie, []string{"Cast","Genres"})
 		movie.Title = movieInput.Title
 		movie.Director = movieInput.Director
 		movie.ReleaseYear = movieInput.ReleaseYear
@@ -123,6 +164,13 @@ func GetMoviesById(c *gin.Context) {
 }
 
 
+// DeleteMovie godoc
+// @Summary Deletes Movie from DB
+// @Description Delete movie from ID
+// @Param  id integer "Movie.ID"
+// @Success 200 
+// @Router /am_api/movies/{id} [delete]
+// @Security Authorization Token from Admin user
 func DeleteMovie(c *gin.Context){
 	s := persist.GetMovieRepository()
 	id := c.Param("id")
@@ -185,6 +233,12 @@ func getAndCreateGenres(genres []string) ([]*models.Genre){
 }
 
 
+// GetPeople godoc
+// @Summary Get all the famous people starred in the movies DB
+// @Description return all the people in DB
+// @Produce json
+// @Success 200 {object} []model.People
+// @Router /am_api/people [get]
 func GetPeople(c *gin.Context) {
 	s := persist.GetPeopleRepository()
 	var q models.People
@@ -197,6 +251,18 @@ func GetPeople(c *gin.Context) {
 	}
 }
 
+// UpdatePeople godoc
+// @Summary Update People Info
+// @Description Update People from ID
+// @Accept json
+// @Param  id integer "People.ID"
+// @Produce json
+// @Param  name string
+// @Param birthdate string
+// @Param birthlocation string
+// @Param gender string
+// @Success 200 {object} model.People
+// @Router /am_api/people/{id} [put]
 func UpdatePeople(c *gin.Context) {
 	s := persist.GetPeopleRepository()
 	id := c.Param("id")
@@ -219,7 +285,12 @@ func UpdatePeople(c *gin.Context) {
 	}
 }
 
-
+// GetGenres godoc
+// @Summary Get all the genres from the DB
+// @Description Get genres in DB
+// @Produce json
+// @Success 200 {object} []model.Genres
+// @Router /am_api/genres [get]
 func GetGenres(c *gin.Context) {
 	s := persist.GetGenreRepository()
 	var q models.Genre

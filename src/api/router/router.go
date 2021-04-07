@@ -39,9 +39,6 @@ func Setup() *gin.Engine {
 	// ========= Static Routes
 	app.LoadHTMLGlob("static/*")
 
-	// ========== Docs Routes
-	// app.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
 
 	// ========= Test Routes
     app.GET("/", controllers.ShowIndex)
@@ -63,6 +60,7 @@ func Setup() *gin.Engine {
 
 		// Only Admin
 		am_api.DELETE("/users/:id", middleware.AdminRequired(), controllers.DeleteUser)
+		am_api.GET("/users/:id", middleware.AdminRequired(), controllers.GetUserById)
 		am_api.GET("/users", middleware.AdminRequired(), controllers.GetUsers)
 
 		// ========== Movies Usage
@@ -72,7 +70,7 @@ func Setup() *gin.Engine {
 
 		// =========== Adding Data
 		am_api.POST("/movies", controllers.CreateMovie)
-		am_api.POST("/movies/:id", controllers.UpdateMovie)
+		am_api.PUT("/movies/:id", controllers.UpdateMovie)
 		am_api.DELETE("/movies/:id", middleware.AdminRequired(), controllers.DeleteMovie)
 
 		// Genre
@@ -80,7 +78,7 @@ func Setup() *gin.Engine {
 
 		// People
 		am_api.GET("/people", controllers.GetPeople)
-		am_api.POST("/people/:id", controllers.UpdatePeople)
+		am_api.PUT("/people/:id", controllers.UpdatePeople)
 
 	}
 	

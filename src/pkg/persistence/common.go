@@ -59,8 +59,6 @@ func Find(where interface{}, out interface{}, associations []string, orders ...s
 }
 
 
-
-
 // Find similar to 
 func FindLike(where string, query string, out interface{}, associations []string, orders ...string) error {
 	db := db.GetDB()
@@ -76,35 +74,3 @@ func FindLike(where string, query string, out interface{}, associations []string
 	return db.Find(out).Error
 }
 
-// Delete Model
-func DeleteByModel(model interface{}) (count int64, err error) {
-	db := db.GetDB().Delete(model)
-	err = db.Error
-	if err != nil {
-		return
-	}
-	count = db.RowsAffected
-	return
-}
-
-// Delete
-func DeleteByWhere(model, where interface{}) (count int64, err error) {
-	db := db.GetDB().Where(where).Delete(model)
-	err = db.Error
-	if err != nil {
-		return
-	}
-	count = db.RowsAffected
-	return
-}
-
-// Delete by ID
-func DeleteByID(model interface{}, id uint64) (count int64, err error) {
-	db := db.GetDB().Where("id=?", id).Delete(model)
-	err = db.Error
-	if err != nil {
-		return
-	}
-	count = db.RowsAffected
-	return
-}

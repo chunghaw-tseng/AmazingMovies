@@ -3,7 +3,6 @@ package persistence
 import(
 	"strings"
 	"strconv"
-	"example.com/amazingmovies/src/pkg/db"
 	models "example.com/amazingmovies/src/pkg/models/movies"
 )
 

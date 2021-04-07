@@ -14,14 +14,28 @@ import(
 )
 
 
-type UserInput struct {
+type CreateUserInput struct {
 	Username  string `json:"username" binding:"required"`
 	Lastname  string `json:"lastname"`
 	Firstname string `json:"firstname"`
 	Password  string `json:"password" binding:"required"`
 }
 
+type UpdateUserInput struct{
+	Lastname  string `json:"lastname"`
+	Firstname string `json:"firstname"`
+	Password  string `json:"password" binding:"required"`
+}
 
+
+// GetUserById godoc
+// @Summary get specific user from db
+// @Description get user with specific id
+// @Produce json
+// @Param id integer "User.ID"
+// @Success 200 {object} model.User
+// @Router /am_api/users/{id} [get]
+// @Security Admin Authorization Token 
 func GetUserById(c *gin.Context) {
 	s := persistence.GetUserRepository()
 	id := c.Param("id")
@@ -33,6 +47,14 @@ func GetUserById(c *gin.Context) {
 	}
 }
 
+
+// GetUsers godoc
+// @Summary Fetch all the users
+// @Description get all the users from db
+// @Produce json
+// @Success 200 {object} model.User
+// @Router /am_api/users [get]
+// @Security Admin Authorization Token 
 func GetUsers(c *gin.Context) {
 	s := persistence.GetUserRepository()
 	var q models.User
@@ -45,14 +67,24 @@ func GetUsers(c *gin.Context) {
 	}
 }
 
+// CreateUser godoc
+// @Summary Creates new user
+// @Description adds new user to db
+// @Accepts json
+// @Param username string
+// @Param lastname string
+// @Param username string
+// @Param password string
+// @Produce json
+// @Success 200 {object} model.User
+// @Router /am_api/users [put]
 func CreateUser(c *gin.Context) {
 	s := persistence.GetUserRepository()
 	r := persistence.GetRolesRepository()	
-	var userInput UserInput
+	var userInput CreateUserInput
 	_ = c.BindJSON(&userInput)
 	apikey := uuid.New().String()
 	role, _ := r.Get("user")
-
 	user := models.User{
 		Username:  userInput.Username,
 		Firstname: userInput.Firstname,
@@ -69,19 +101,18 @@ func CreateUser(c *gin.Context) {
 	}
 }
 
-// Main check for api_key
-func GetUserByKey(c *gin.Context){
-	s := persistence.GetUserRepository()
-	key := c.Params.ByName("api_key")
-	// movie_id := c.Params.ByName("movie_id")
-	if user, err := s.GetbyKey(key); err != nil {
-		http_err.NewError(c, http.StatusNotFound, errors.New("user not found"))
-		log.Println(err)
-	} else {
-		c.JSON(http.StatusOK, user)
-	}
-}
 
+
+// FavMovie godoc
+// @Summary Adds movie to user favorites
+// @Description  Adds new movie to the user list of favorites
+// @Param id integer "Movie.ID"
+// @Produce json
+// @Success 200 {object} string
+// @Failure 406 {object} Error
+// @Failure 404 {object} Error
+// @Router /am_api/favorite/{id} [post]
+// @Authentication User Authentication Token or API Key
 func FavMovie(c *gin.Context){
 	user_repo := persistence.GetUserRepository()
 	m_repo := persistence.GetMovieRepository()
@@ -109,47 +140,86 @@ func FavMovie(c *gin.Context){
 	}
 }
 
+// ShowFavMovies godoc
+// @Summary show the list of favorite movies
+// @Description  gets all the movies that are favorited
+// @Produce json 
+// @Success 200 {object} []model.Movies
+// @Router /am_api/favorite [get]
+// @Authentication User Authentication Token or API Key
 func ShowFavMovies(c *gin.Context){
 	user := c.MustGet("user").(*models.User)
 	c.JSON(http.StatusOK, user.Favorites)
 }
 
 
+// DeleteFavMovie godoc
+// @Summary Delete movie from favorites
+// @Description  removes the movie association with from the favorites list
+// @Param id integer "Movie.ID"
+// @Produce json
+// @Success 200 
+// @Failure 404 {object} Error
+// @Router /am_api/favorite/{id} [delete]
+// @Authentication User Authentication Token or API Key
 func DeleteFavMovie(c *gin.Context){
 	s := persistence.GetUserRepository()
+	m_repo := persistence.GetMovieRepository()
 	user := c.MustGet("user").(*models.User)
 	id := c.Params.ByName("id")
-	
+	if movie, err := m_repo.Get(id); err != nil{
+		http_err.NewError(c, http.StatusNotFound, errors.New("movie not found"))
+		log.Println(err)
+	}else{
+		if err := s.DeleteAssociation(user, "Favorites", movie); err != nil{
+			log.Println(err)
+		}
+	}
+
 }
 
+
+// UpdateUser godoc
+// @Summary Updates the user info
+// @Description  updates the user information
+// @Produce json
+// @Param lastname string
+// @Param firstname string
+// @Param password string
+// @Success 200 {object} models.User
+// @Failure 404 {object} Error
+// @Router /am_api/users [put]
+// @Authentication User Authentication Token or API Key
 func UpdateUser(c *gin.Context) {
 	s := persistence.GetUserRepository()
-	id := c.Params.ByName("id")
-	var userInput UserInput
+	user := c.MustGet("user").(*models.User)
+	var userInput UpdateUserInput
 	_ = c.BindJSON(&userInput)
-	if user, err := s.Get(id); err != nil {
-		http_err.NewError(c, http.StatusNotFound, errors.New("user not found"))
+	user.Lastname = userInput.Lastname
+	user.Firstname = userInput.Firstname
+	user.Hash = crypto.GenerateHash([]byte(userInput.Password))
+
+	if err := s.Update(user); err != nil {
+		http_err.NewError(c, http.StatusNotFound, err)
 		log.Println(err)
 	} else {
-		user.Username = userInput.Username
-		user.Lastname = userInput.Lastname
-		user.Firstname = userInput.Firstname
-		user.Hash = crypto.GenerateHash([]byte(userInput.Password))
-
-		if err := s.Update(user); err != nil {
-			http_err.NewError(c, http.StatusNotFound, err)
-			log.Println(err)
-		} else {
-			c.JSON(http.StatusOK, user)
-		}
+		c.JSON(http.StatusOK, user)
 	}
 }
 
+
+// DeleteUser godoc
+// @Summary Delete specific user
+// @Description  removes the user with specific id
+// @Param id integer "User.ID"
+// @Produce json
+// @Success 200 
+// @Failure 404 {object} Error
+// @Router /am_api/users/{id} [delete]
+// @Authentication Admin Authentication Token
 func DeleteUser(c *gin.Context) {
 	s := persistence.GetUserRepository()
 	id := c.Params.ByName("id")
-	var userInput UserInput
-	_ = c.BindJSON(&userInput)
 	if user, err := s.Get(id); err != nil {
 		http_err.NewError(c, http.StatusNotFound, errors.New("user not found"))
 		log.Println(err)

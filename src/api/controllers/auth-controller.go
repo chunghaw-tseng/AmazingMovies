@@ -16,6 +16,16 @@ type LoginInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+
+// Login godoc
+// @Summary Retrieves JWT Token for specific user
+// @Description Get JWT Token from creedentials
+// @Produce string
+// @Accept  json
+// @Param username string
+// @Param password string
+// @Success 200 {string} JWT Token 
+// @Router /am_api/login [post]
 func Login(c *gin.Context) {
 	var loginInput LoginInput
 	_ = c.BindJSON(&loginInput)
@@ -33,6 +43,15 @@ func Login(c *gin.Context) {
 	}
 }
 
+// KeyLogin godoc
+// @Summary Retrieves API Key for specific user
+// @Description Get API Key from creedentials
+// @Produce string
+// @Accept  json
+// @Param username string
+// @Param password string
+// @Success 200 {string} APIKey
+// @Router /am_api/loginkey [post]
 func KeyLogin(c *gin.Context){
 	var loginInput LoginInput
 	_ = c.BindJSON(&loginInput)
